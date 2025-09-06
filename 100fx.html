@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FFmpeg 100 Effects Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.4/dist/ffmpeg.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0d0d0d; color:#eee; text-align:center; }
+    select, button { margin:10px; padding:8px; width:60%; }
+    video { max-width:90%; margin-top:15px; border:2px solid #333; border-radius:8px; }
+    h2 { color:#6cf; }
+  </style>
+</head>
+<body>
+  <h2>🎬 FFmpeg Effects Demo (100 Filters)</h2>
+  <input type="file" id="uploader" accept="video/*"><br>
+  <select id="effect" size="15">
+    <optgroup label="🎨 Color & Tone">
+      <option value="hue=s=0">Grayscale</option>
+      <option value="negate">Negative</option>
+      <option value="hue=h=45">Hue Rotate 45°</option>
+      <option value="hue=h=90">Hue Rotate 90°</option>
+      <option value="hue=h=180">Hue Rotate 180°</option>
+      <option value="hue=h=270">Hue Rotate 270°</option>
+      <option value="eq=brightness=0.5">Brighten</option>
+      <option value="eq=brightness=-0.3">Darken</option>
+      <option value="eq=contrast=1.5">High Contrast</option>
+      <option value="eq=contrast=0.7">Low Contrast</option>
+      <option value="eq=saturation=2">High Saturation</option>
+      <option value="eq=saturation=0.3">Low Saturation</option>
+      <option value="eq=gamma=0.5">Gamma Low</option>
+      <option value="eq=gamma=1.5">Gamma High</option>
+      <option value="colorbalance=bs=0.5">Blue Shift</option>
+      <option value="colorbalance=rs=0.5">Red Shift</option>
+    </optgroup>
+
+    <optgroup label="🔄 Transform">
+      <option value="vflip">Flip Vertical</option>
+      <option value="hflip">Flip Horizontal</option>
+      <option value="transpose=1">Rotate 90° CW</option>
+      <option value="transpose=2">Rotate 90° CCW</option>
+      <option value="rotate=PI/4">Rotate 45°</option>
+      <option value="rotate=PI/2">Rotate 180°</option>
+      <option value="crop=iw/2:ih/2">Crop Center</option>
+      <option value="scale=iw/2:ih/2">Scale Half</option>
+      <option value="scale=2*iw:2*ih">Scale Double</option>
+      <option value="tile=2x2">Tile 2x2</option>
+      <option value="tile=3x3">Tile 3x3</option>
+      <option value="zoompan=z='min(zoom+0.002,1.5)':d=125">Zoom Pan</option>
+    </optgroup>
+
+    <optgroup label="🌫 Blur & Sharpen">
+      <option value="boxblur=5:1">Box Blur</option>
+      <option value="boxblur=10:2">Strong Box Blur</option>
+      <option value="gblur=sigma=4">Gaussian Blur</option>
+      <option value="gblur=sigma=10">Heavy Gaussian Blur</option>
+      <option value="smartblur=lr=3:ls=-0.5">Smart Blur</option>
+      <option value="avgblur=5">Average Blur</option>
+      <option value="avgblur=15">Strong Average Blur</option>
+      <option value="unsharp=5:5:1.0:5:5:0.0">Sharpen</option>
+      <option value="unsharp=7:7:2.0:7:7:1.0">Strong Sharpen</option>
+      <option value="tblend=all_mode=average">Temporal Blend</option>
+    </optgroup>
+
+    <optgroup label="🌀 Distort & Warp">
+      <option value="lenscorrection=k1=0.5:k2=0.5">Lens Correction</option>
+      <option value="frei0r=defish0r:0.5">Defish</option>
+      <option value="frei0r=distort0r:0.4">Distort</option>
+      <option value="frei0r=curves">Curve Warp</option>
+      <option value="frei0r=twirl:0.5">Twirl</option>
+      <option value="frei0r=waves:0.8">Wave</option>
+      <option value="frei0r=mirror">Mirror</option>
+      <option value="frei0r=contrast0r">Contrast Warp</option>
+    </optgroup>
+
+    <optgroup label="✏️ Artistic & Stylized">
+      <option value="edgedetect=low=0.1:high=0.4">Edge Detect</option>
+      <option value="sobel">Sobel Filter</option>
+      <option value="frei0r=cartoon:0.6">Cartoon</option>
+      <option value="frei0r=glow:0.5">Glow</option>
+      <option value="frei0r=posterize:4">Posterize</option>
+      <option value="frei0r=solarize:0.5">Solarize</option>
+      <option value="frei0r=emboss">Emboss</option>
+      <option value="frei0r=3dflippo">3D Flippo</option>
+      <option value="frei0r=softglow">Soft Glow</option>
+      <option value="frei0r=vertigo">Vertigo</option>
+      <option value="frei0r=pixeliz0r:20">Pixelize</option>
+      <option value="frei0r=rgbnoise">RGB Noise</option>
+      <option value="frei0r=threshold0r:0.5">Threshold</option>
+      <option value="frei0r=water">Water</option>
+      <option value="frei0r=lightgraffiti">Light Graffiti</option>
+    </optgroup>
+
+    <optgroup label="🎞 Vintage & Film Looks">
+      <option value="curves=preset=vintage">Vintage</option>
+      <option value="curves=preset=strong_contrast">Strong Contrast</option>
+      <option value="frei0r=filmgrain:0.3">Film Grain</option>
+      <option value="frei0r=burn">Burn</option>
+      <option value="frei0r=oldtv">Old TV</option>
+      <option value="frei0r=sepia">Sepia</option>
+      <option value="frei0r=rgbparade">RGB Parade</option>
+      <option value="frei0r=scanline0r">Scanlines</option>
+      <option value="frei0r=tehroxx0r">Pixel Glitch</option>
+      <option value="frei0r=tint0r:0.2|0.8|0.3">Tint</option>
+      <option value="frei0r=dust">Dust</option>
+      <option value="frei0r=scratch">Film Scratch</option>
+      <option value="frei0r=vignette">Vignette</option>
+      <option value="frei0r=colorize">Colorize</option>
+      <option value="frei0r=letterb0xed">Letterbox</option>
+    </optgroup>
+
+    <optgroup label="🔊 Fun / Experimental">
+      <option value="frei0r=glitch0r">Glitch</option>
+      <option value="frei0r=warptv">Warp TV</option>
+      <option value="frei0r=feedback">Feedback</option>
+      <option value="frei0r=chromashift">Chroma Shift</option>
+      <option value="frei0r=delaygrab">Delay Grab</option>
+      <option value="frei0r=whirl">Whirl</option>
+      <option value="frei0r=zebrafy">Zebra Stripes</option>
+      <option value="frei0r=split">Split Screen</option>
+      <option value="frei0r=shading">Shading</option>
+      <option value="frei0r=plasma">Plasma</option>
+    </optgroup>
+  </select><br>
+
+  <button id="apply">Apply Effect</button><br>
+  <video id="outputVideo" controls></video>
+
+  <script>
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg = createFFmpeg({ log: true });
+    const uploader = document.getElementById("uploader");
+    const effectSelect = document.getElementById("effect");
+    const outputVideo = document.getElementById("outputVideo");
+
+    let inputName = "input.mp4";
+    let outputName = "output.mp4";
+    let inputData;
+
+    uploader.addEventListener("change", async (e) => {
+      inputData = e.target.files[0];
+    });
+
+    document.getElementById("apply").addEventListener("click", async () => {
+      if (!inputData) return alert("Upload a video first!");
+      if (!ffmpeg.isLoaded()) await ffmpeg.load();
+
+      ffmpeg.FS("writeFile", inputName, await fetchFile(inputData));
+      const filter = effectSelect.value;
+
+      await ffmpeg.run("-i", inputName, "-vf", filter, "-preset", "ultrafast", outputName);
+
+      const data = ffmpeg.FS("readFile", outputName);
+      const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
+      outputVideo.src = url;
+    });
+  </script>
+</body>
+</html>
